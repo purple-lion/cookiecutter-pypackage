@@ -2,7 +2,18 @@
 
 """The setup script."""
 
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+sys.path.insert(0, os.path.join(ROOT, "src"))
+
 from setuptools import setup, find_packages
+
+def get_requirements(env):
+    with open(os.path.join(u"requirements", "{}.txt".format(env))) as fp:
+        return [x.strip() for x in fp.read().split("\n") if not x.startswith("#")]
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -15,6 +26,8 @@ requirements = [{%- if cookiecutter.command_line_interface|lower == 'click' %}'C
 setup_requirements = [{%- if cookiecutter.use_pytest == 'y' %}'pytest-runner',{%- endif %} ]
 
 test_requirements = [{%- if cookiecutter.use_pytest == 'y' %}'pytest>=3',{%- endif %} ]
+requirements = requirements + get_requirements("base")
+dev_requirements = get_requirements("dev")
 
 {%- set license_classifiers = {
     'MIT license': 'License :: OSI Approved :: MIT License',
@@ -50,6 +63,7 @@ setup(
     },
     {%- endif %}
     install_requires=requirements,
+    extras_require={"dev": dev_requirements},
 {%- if cookiecutter.open_source_license in license_classifiers %}
     license="{{ cookiecutter.open_source_license }}",
 {%- endif %}
